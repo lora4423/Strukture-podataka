@@ -1,0 +1,24 @@
+﻿  zad4.c
+C:\Users\marit\OneDrive\Radna površina\Vjezba4\zad4.c(149,4): warning C4013: 'addToEnd' undefined; assuming extern returning int
+C:\Users\marit\OneDrive\Radna površina\Vjezba4\zad4.c(220,17): warning C4013: 'AddEl' undefined; assuming extern returning int
+C:\Users\marit\OneDrive\Radna površina\Vjezba4\zad4.c(220,15): warning C4047: '=': 'Element' differs in levels of indirection from 'int'
+C:\Users\marit\OneDrive\Radna površina\Vjezba4\zad4.c(242,20): warning C4047: 'function': 'Element' differs in levels of indirection from 'int'
+C:\Users\marit\OneDrive\Radna površina\Vjezba4\zad4.c(242,20): warning C4024: 'addEl': different types for formal and actual parameter 2
+C:\Users\marit\OneDrive\Radna površina\Vjezba4\zad4.c(242,45): warning C4020: 'addEl': too many actual parameters
+C:\Users\marit\OneDrive\Radna površina\Vjezba4\zad4.c(249,30): warning C4047: 'function': 'Element' differs in levels of indirection from 'int'
+C:\Users\marit\OneDrive\Radna površina\Vjezba4\zad4.c(249,30): warning C4024: 'addEl': different types for formal and actual parameter 2
+C:\Users\marit\OneDrive\Radna površina\Vjezba4\zad4.c(249,56): warning C4020: 'addEl': too many actual parameters
+C:\Users\marit\OneDrive\Radna površina\Vjezba4\zad4.c(254,30): warning C4047: 'function': 'Element' differs in levels of indirection from 'int'
+C:\Users\marit\OneDrive\Radna površina\Vjezba4\zad4.c(254,30): warning C4024: 'addEl': different types for formal and actual parameter 2
+C:\Users\marit\OneDrive\Radna površina\Vjezba4\zad4.c(254,56): warning C4020: 'addEl': too many actual parameters
+C:\Users\marit\OneDrive\Radna površina\Vjezba4\zad4.c(260,29): warning C4047: 'function': 'Element' differs in levels of indirection from 'int'
+C:\Users\marit\OneDrive\Radna površina\Vjezba4\zad4.c(260,29): warning C4024: 'addEl': different types for formal and actual parameter 2
+C:\Users\marit\OneDrive\Radna površina\Vjezba4\zad4.c(260,55): warning C4020: 'addEl': too many actual parameters
+C:\Users\marit\OneDrive\Radna površina\Vjezba4\zad4.c(265,29): warning C4047: 'function': 'Element' differs in levels of indirection from 'int'
+C:\Users\marit\OneDrive\Radna površina\Vjezba4\zad4.c(265,29): warning C4024: 'addEl': different types for formal and actual parameter 2
+C:\Users\marit\OneDrive\Radna površina\Vjezba4\zad4.c(265,55): warning C4020: 'addEl': too many actual parameters
+zad4.obj : error LNK2019: unresolved external symbol readFile referenced in function main
+zad4.obj : error LNK2019: unresolved external symbol printPol referenced in function main
+zad4.obj : error LNK2019: unresolved external symbol addToEnd referenced in function insertSort
+zad4.obj : error LNK2019: unresolved external symbol AddEl referenced in function MultiplyPol
+C:\Users\marit\OneDrive\Radna površina\Vjezba4\x64\Debug\Vjezba4.exe : fatal error LNK1120: 4 unresolved externals
