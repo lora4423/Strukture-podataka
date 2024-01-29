@@ -1,208 +1,271 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#define MAX_LINE 30
+#include <stdlib.h>
+#define _CRT_SECURE_NO_WARNINGS 
+#define MAX_SIZE 1024
+#define HASH_SIZE 11
 
-struct _list;
-typedef struct _list* listPosition;
-typedef struct _list {
-	char city[MAX_LINE];
-	int number_pop;
-	listPosition next;
-}list;
+typedef struct _city* cityPosition;
 
-struct _tree;
-typedef struct _tree* treePosition;
-typedef struct _tree {
-	char country[MAX_LINE];
-	listPosition cities;
-	treePosition left;
-	treePosition right;
-}tree;
+typedef struct _country* countryPosition;
+typedef struct _country {
 
-int InsertInTreeFromFile(treePosition head, char* fileName);
-int InsertInListFromFile(listPosition head, char* fileName);
-int SortListWhileInserting(listPosition head, listPosition newPerson);
-int InsertAfter(listPosition who, listPosition where);
-listPosition CreateListElement(char* city, int number_pop);
-int PrintList(listPosition first);
-int PrintTreeInOrder(treePosition current);
-treePosition SortTreeWhileInserting(treePosition current, treePosition newElement);
-treePosition CreateTreeElement(char* country);
+	char countryName[MAX_SIZE];
+	countryPosition nextCountry;
+	cityPosition cityRoot;
+	cityPosition cityHead;
+	countryPosition left;
+	countryPosition right;
 
+}country;
+
+typedef struct _city {
+
+	char cityName[MAX_SIZE];
+	double population;
+	cityPosition left;
+	cityPosition right;
+	cityPosition nextCity;
+
+}city;
+
+typedef struct _hash* HashPointer;
+
+typedef struct _hash {
+
+	countryPosition nextHashEl[HASH_SIZE];
+
+}Hash;
+
+int ReadFilecountry(countryPosition countryHead);
+countryPosition CreateListNode(char* countryName);
+cityPosition CreateTreeNode(char* cityName, int population);
+cityPosition InsertSortTree(cityPosition cityRoot, int population, char* cityName);
+int InsertSortList(countryPosition listHead, countryPosition newCity);
+int PrintCountry(countryPosition countryHead);
+cityPosition CityInorder(cityPosition cityRoot);
+Hash CreateHash();
+int CalculateHashKey(char* countryName);
+int InsertCountryHash(Hash* hash, countryPosition newCountry, int key);
+int PrintCountriesHash(Hash* hash);
 
 int main() {
 
-	tree tCountries = { .country = "",.cities = NULL,.left = NULL,.right = NULL };
-	treePosition treeCountries = &tCountries;
+	country countryHead = { .countryName = {0},.nextCountry = NULL,.cityRoot = NULL,.cityHead = NULL,.left = NULL,.right = NULL };
+	country countryRoot = { .countryName = {0},.nextCountry = NULL,.cityRoot = NULL,.cityHead = NULL,.left = NULL,.right = NULL };
+	char countryName[MAX_SIZE] = { 0 };
+	double population = 0;
 
-	char countries[MAX_LINE] = { 0 };
-	printf("Name your file \n:");
-	scanf(" %[^\n]", countries);
-	InsertInTreeFromFile(treeCountries, countries);
-	PrintTreeInOrder(treeCountries);
+	countryPosition hash = (countryPosition)malloc(sizeof(countryPosition) * 11);
 
-	return EXIT_SUCCESS;
+	if (!hash)
+		return -1;
 
-}
-
-
-int InsertInTreeFromFile(treePosition head, char* fileName) {
-
-	FILE* dat = NULL;
-	dat = fopen(fileName, "r");
-	char country[MAX_LINE] = { 0 }, datCities[MAX_LINE];
-
-	tree temp1 = { .country = "",.cities = NULL,.left = NULL,.right = NULL };
-	treePosition temp2 = &temp1;
-
-	if (!dat) {
-		printf("Can't allocate memory!\n");
-		return EXIT_FAILURE;
-	}
-
-	while (!feof(dat)) {
-
-		fscanf(dat, "%s %s", country, datCities);
-		//temp->cities
-		temp2 = CreateTreeElement(country);
-		//temp -> cities -> city, -II- -> number_pop);
-		InsertInListFromFile(temp2->cities, datCities);
-		head = SortTreeWhileInserting(head, temp2);
-	}
-
-	fclose(dat);
-	return EXIT_SUCCESS;
-}
-
-int InsertInListFromFile(listPosition head, char* fileName) {
-
-	FILE* dat = NULL;
-	dat = fopen(fileName, "r");
-
-	char city[MAX_LINE] = { 0 };
-	int number_pop = 0;
-
-	list temp1 = { .city = "",.number_pop = 0,.next = NULL };
-	listPosition temp2 = &temp1;
-
-	if (!dat) {
-		printf("Can't allocate memory!\n");
-		return EXIT_FAILURE;
-	}
-
-	while (!feof(dat)) {
-		fscanf(dat, "%s %d", city, &number_pop);
-		temp2 = CreateListElement(city, number_pop);
-		//country -> cities -> city, -II- number_pop
-		SortListWhileInserting(head, temp2);
-
-	}
-	fclose(dat);
-
-	return EXIT_SUCCESS;
+	ReadFilecountry(&countryHead);
 
 }
 
+Hash CreateHash() {
 
-int SortListWhileInserting(listPosition head, listPosition newElement) {
+	Hash hash = { .nextHashEl = NULL };
+
+	for (int i = 0; i < HASH_SIZE; i++)
+		hash.nextHashEl[i] = NULL;
+
+	return hash;
+
+}
+int CalculateHashKey(char* countryName) {
+
+	int ascii = 0;
+	int key = 0;
+
+	for (int i = 0; i < 5; i++)
+		ascii += countryName[i];
+
+	key = ascii % HASH_SIZE;
+
+	return key;
+
+}
+
+int InsertCountryHash(Hash* hash, countryPosition newCountry, int key) {
 
 
-	while (head->next != NULL && head->next->number_pop > newElement->number_pop) {
-		head = head->next;
+	if (hash->nextHashEl[key] == NULL)
+		hash->nextHashEl[key] = newCountry;
+
+	else
+		InsertSortList(hash->nextHashEl[key], newCountry);
+
+	return 0;
+
+}
+
+int PrintCountriesHash(Hash* hash) {
+
+	countryPosition currentCountry = NULL;
+
+	for (int i = 0; i < HASH_SIZE; i++)
+	{
+		currentCountry = hash->nextHashEl[i];
+		while (currentCountry != NULL)
+		{
+			printf("\n%s\n", currentCountry->countryName);
+			CityInorder(currentCountry->cityRoot);
+			currentCountry = currentCountry->nextCountry;
+		}
+
 	}
-	InsertAfter(newElement, head);
-	return EXIT_FAILURE;
+}
+
+int ReadFilecountry(countryPosition countryHead) {
+
+	FILE* countryAllFilepointer = NULL;
+	FILE* countryFilepointer = NULL;
+	char countryName[MAX_SIZE] = { 0 }, countryNameFile[MAX_SIZE] = { 0 }, cityName[MAX_SIZE] = { 0 }, strPopulation[MAX_SIZE] = { 0 };
+	double population = 0;
+	countryPosition newCountry = NULL;
+	city cityRoot = { .cityName = {0},.nextCity = NULL,.population = 0,.left = NULL,.right = NULL };
+	int key = 0;
+	Hash hash = { .nextHashEl = NULL };
+
+	hash = CreateHash();
+
+	countryAllFilepointer = fopen("drzave.txt", "r");
+	if (!countryAllFilepointer)
+		return -1;
+
+	while (fscanf(countryAllFilepointer, "%s %s%*c", countryName, countryNameFile) == 2)
+	{
+
+		newCountry = CreateListNode(countryName);
+		if (newCountry == NULL)
+			return -1;
+
+		countryFilepointer = fopen(countryNameFile, "r");
+
+		while (fscanf(countryFilepointer, "%50[^,]%*c%s%*c", cityName, strPopulation) == 2) // %50[^,] èita dok ne naiðe na zarez, radi samo za str, uèitat str i pretvorit u int, float, double
+		{
+			population = atof(strPopulation); // pretvara str u float, double, int (atoi)
+
+			if (newCountry->cityRoot == NULL)
+			{
+				newCountry->cityRoot = CreateTreeNode(cityName, population);
+				if (newCountry->cityRoot == NULL)
+					return -1;
+			}
+			else
+			{
+				if (InsertSortTree(newCountry->cityRoot, population, cityName) != newCountry->cityRoot)
+					return -1;
+			}
+		}
+		fclose(countryFilepointer);
+
+		key = CalculateHashKey(countryName);
+
+		if (InsertCountryHash(&hash, newCountry, key) != 0)
+			return -1;
+
+
+	}
+	fclose(countryAllFilepointer);
+	PrintCountriesHash(&hash);
 }
 
 
-int InsertAfter(listPosition who, listPosition where) {
+countryPosition CreateListNode(char* countryName) {
 
-	who->next = where->next;
-	where->next = who;
+	countryPosition newCity = (countryPosition)malloc(sizeof(country));
 
-	return EXIT_SUCCESS;
-}
-
-listPosition CreateListElement(char* city, int number_pop) {
-	listPosition newElement = NULL;
-	newElement = (listPosition)malloc(sizeof(list));
-
-	if (!newElement) {
-		perror("\nCan't allocate memory!");
+	if (!newCity)
 		return NULL;
-	}
 
-	strcpy(newElement->city, city);
-	newElement->number_pop = number_pop;
-	newElement->next = NULL;
+	strcpy(newCity->countryName, countryName);
+	newCity->nextCountry = NULL;
+	newCity->cityHead = NULL;
+	newCity->cityRoot = NULL;
+	newCity->left = NULL;
+	newCity->right = NULL;
 
-	return newElement;
+	return newCity;
 }
 
-int PrintList(listPosition first) {
+cityPosition CreateTreeNode(char* cityName, int population) {
 
-	if (first == NULL) return 0;
-	listPosition temp = first->next;
+	cityPosition newCity = (cityPosition)malloc(sizeof(city));
 
-	while (temp) {
-		printf("\n\t\tCity %s with %d population", temp->city, temp->number_pop);
-		temp = temp->next;
-	}
-
-	return EXIT_SUCCESS;
-}
-
-int PrintTreeInOrder(treePosition current) {
-	if (current == NULL)
-		return EXIT_SUCCESS;
-
-	PrintTreeInOrder(current->left);
-	printf("\nCountry: %s", current->country);
-	PrintList(current->cities);
-	PrintTreeInOrder(current->right);
-
-	return EXIT_SUCCESS;
-}
-
-treePosition SortTreeWhileInserting(treePosition current, treePosition newElement) {
-
-	if (!current)
-		return newElement;
-
-	if (strcmp(current->country, newElement->country) > 0) {
-		current->right = SortTreeWhileInserting(current->right, newElement);
-	}
-
-	else if (strcmp(current->country, newElement->country) < 0) {
-		current->left = SortTreeWhileInserting(current->left, newElement);
-	}
-	else free(newElement);
-
-	return current;
-}
-
-treePosition CreateTreeElement(char* country) {
-	treePosition newElement = NULL;
-	newElement = (treePosition)malloc(sizeof(tree));
-
-	if (!newElement) {
-		perror("\nCan't allocate memory.");
+	if (!newCity)
 		return NULL;
+
+	strcpy(newCity->cityName, cityName);
+	newCity->population = population;
+	newCity->left = NULL;
+	newCity->right = NULL;
+
+	return newCity;
+
+}
+
+cityPosition InsertSortTree(cityPosition cityRoot, int population, char* cityName) {
+
+	if (cityRoot == NULL)
+		return CreateTreeNode(cityName, population);
+
+	else if (population < cityRoot->population)
+		cityRoot->left = InsertSortTree(cityRoot->left, population, cityName);
+
+	else if (population > cityRoot->population)
+		cityRoot->right = InsertSortTree(cityRoot->right, population, cityName);
+
+	else
+	{
+		if (strcmp(cityName, cityRoot->cityName) < 0)
+			cityRoot->left = InsertSortTree(cityRoot->left, population, cityName);
+		else
+			cityRoot->right = InsertSortTree(cityRoot->right, population, cityName);
+
 	}
 
-	strcpy(newElement->country, country);
-	newElement->cities = (treePosition)malloc(sizeof(list));
-	if (!newElement->cities) {
-		perror("Can't allocate!");
-		free(newElement);
-		return NULL;
+	return cityRoot;
+}
+
+
+int InsertSortList(countryPosition listHead, countryPosition newCountry) {
+
+	countryPosition currentcountry = listHead;
+
+	while (currentcountry->nextCountry != NULL && strcmp(currentcountry->nextCountry->countryName, newCountry->countryName) < 0)
+		currentcountry = currentcountry->nextCountry;
+
+	newCountry->nextCountry = currentcountry->nextCountry;
+	currentcountry->nextCountry = newCountry;
+
+	return 0;
+
+}
+
+int PrintCountry(countryPosition countryHead) {
+
+	countryPosition currentCountry = countryHead->nextCountry;
+
+	while (currentCountry != NULL)
+	{
+		printf("%s\n", currentCountry->countryName);
+		CityInorder(currentCountry->cityRoot);
+		printf("\n");
+		currentCountry = currentCountry->nextCountry;
 	}
-	newElement->cities->next = NULL;
-	newElement->right = NULL;
-	newElement->left = NULL;
 
-	//newElement -> cities -> number_pop, newElement -> country, newElement -> left -> country
+}
 
-	return newElement;
+cityPosition CityInorder(cityPosition cityRoot) {
+
+	if (cityRoot == NULL)
+		return cityRoot;
+
+	CityInorder(cityRoot->left);
+	printf("- %s\n", cityRoot->cityName);
+	CityInorder(cityRoot->right);
 }
